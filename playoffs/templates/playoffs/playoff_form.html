@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static form_extras %}
+
+{% block title %}{% if is_create_view %}Create{% else %}Edit{% endif %} Playoff | {{ block.super }}{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{% static 'playoffs/playoffs.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+  <h1 class="text-center">{% if is_create_view %}Create{% else %}Edit{% endif %} Palyoff</h1>
+  <form id="playoff-form" class="form-horizontal" action="" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="col-sm-2 col-md-3 control-label" for="{{ form.sport.id_for_label }}">Sport</label>
+      <div class="col-sm-8 col-md-6">{{ form.sport|add_class:"form-control" }}</div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 col-md-3 control-label" for="{{ form.title.id_for_label }}">Title</label>
+      <div class="col-sm-8 col-md-6">{{ form.title|add_class:"form-control" }}</div>
+    </div>
+
+    {% if is_create_view %}
+      <div class="form-group">
+        <label class="col-sm-2 col-md-3 control-label" for="{{ form.rounds.id_for_label }}">Rounds</label>
+        <div class="col-sm-3 col-md-2">{{ form.rounds|add_class:"form-control" }}</div>
+        <div class="col-sm-5">
+          <label class="checkbox-inline">{{ form.double }}Double Elimination</label>
+          <label class="checkbox-inline">{{ form.private }}Private</label>
+        </div>
+      </div>
+    {% endif %}
+
+    <div>
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+          <a href="#winners" aria-controls="winners grid" role="tab" data-toggle="tab">
+            {% if is_create_view or playoff.double %}Winners {% endif %}Grid
+          </a>
+        </li>
+        {% if is_create_view or playoff.double %}
+          <li role="presentation">
+            <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
+          </li>
+          <li role="presentation">
+            <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
+          </li>
+        {% endif %}
+      </ul>
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="winners">
+          {% include 'playoffs/playoff_table.html' with rounds=grid.winners %}
+        </div>
+        {% if is_create_view or playoff.double %}
+          <div role="tabpanel" class="tab-pane" id="loosers">
+            {% include 'playoffs/playoff_table.html' with rounds=grid.loosers %}
+          </div>
+          <div role="tabpanel" class="tab-pane" id="final">
+            {% include 'playoffs/match_form.html' with match=grid.grand_final %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-5 col-sm-2">
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+          {% if is_create_view %}Save{% else %}Update{% endif %}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  {% if is_create_view %}
+    <!-- This tables are used to templrary store matches data when round numbers is changed. -->
+    <div id="hidden-winners" class="hidden">
+      <table><tbody><tr></tr><tr></tr><tr></tr><tr></tr></tbody></table>
+    </div>
+    <div id="hidden-loosers" class="hidden">
+      <table><tbody><tr></tr><tr></tr><tr></tr><tr></tr></tbody></table>
+    </div>
+  {% endif %}
+
+{% endblock %}

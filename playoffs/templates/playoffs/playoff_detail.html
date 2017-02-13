@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ playoff.title }} | {{ block.super }}{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{% static 'playoffs/playoffs.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+  <h1 class="text-center">{{ playoff.title }}</h1>
+
+  <div>
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active">
+        <a href="#winners" aria-controls="winners grid" role="tab" data-toggle="tab">
+          {% if playoff.double %}Winners {% endif %}Grid
+        </a>
+      </li>
+      {% if playoff.double %}
+        <li role="presentation">
+          <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
+        </li>
+        <li role="presentation">
+          <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
+        </li>
+      {% endif %}
+      <li role="presentation">
+        <a href="#video" aria-controls="video player" role="tab" data-toggle="tab">Video Player</a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="winners">
+        {% include 'playoffs/playoff_table.html' with rounds=grid.winners %}
+      </div>
+      {% if playoff.double %}
+        <div role="tabpanel" class="tab-pane" id="loosers">
+          {% include 'playoffs/playoff_table.html' with rounds=grid.loosers %}
+        </div>
+        <div role="tabpanel" class="tab-pane" id="final">
+          <div class="graand-final-wrapper">
+            {% include 'playoffs/match_detail.html' with match=grid.grand_final %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div role="tabpanel" class="tab-pane" id="video">
+        <h3 class="text-center">Select match to watch from grid</h3>
+        <p class="text-center">NOTE: Controls are turned off because I don't want you to know when the video ends.<br/>
+          Use hotkeys for navigation: left/right arrows, J, K, L, and other</p>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe id="ytplayer" class="embed-responsive-item"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row created-by">
+    <div class="col-xs-6">
+      <p>Playoff created by
+        {% if playoff.owner %}<a href="{% url 'accounts:user_page' playoff.owner.username %}">{{ playoff.owner }}</a>
+        {% else %}anonymous{% endif %}
+      </p>
+    </div>
+    <div class="col-xs-6 text-right">
+      {% if editable %}<a href="{% url 'playoffs:update' playoff.pk %}">Edit this playoff</a>{% endif %}
+    </div>
+  </div>
+{% endblock %}

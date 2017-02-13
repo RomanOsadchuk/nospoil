@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load form_extras %}
+
+{% block title %}Login | {{ block.super }}{% endblock %}
+
+
+{% block content %}
+  <h2 class="text-center login-heading">Login to NoSpoil</h2>
+  <form class="login-form" method="post">
+    <ul class="error-list text-danger">
+      {% for err in form.non_field_errors %}
+        <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+    {% csrf_token %}
+    <label for="{{ form.username.id_for_label }}" class="sr-only">Username</label>
+    {{ form.username|add_class:'form-control'|set_placeholder:'username' }}
+    <label for="{{ form.password1.id_for_label }}" class="sr-only">Password</label>
+    {{ form.password|add_class:'form-control'|set_placeholder:'password' }}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+  </form>
+{% endblock %}

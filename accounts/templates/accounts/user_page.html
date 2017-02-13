@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user }}'s Profile | {{ block.super }}{% endblock %}
+
+
+{% block content %}
+  <h1>Palyoffs by {{ user }}</h1>
+  {% if playoffs %}
+    <ul>
+      {% for playoff in playoffs %}
+        <li><a href="{% url 'playoffs:detail' playoff.id playoff.slug %}">{{ playoff.title }}</a> - {{ playoff.sport }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No playoffs so far.</p>
+  {% endif %}
+{% endblock %}

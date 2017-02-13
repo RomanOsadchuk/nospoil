@@ -1,0 +1,197 @@
+
+/* ==== body, header, footer, home-page ==== */
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  margin-bottom: 100px;
+  background-color: #eee;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  color: #333;
+  background-color: #d6d6d6;
+}
+.footer .container {
+  padding-top: 20px;
+}
+.footer .container p {
+  margin: 0;
+}
+.flipped { 
+  -webkit-transform: rotateX(180deg);
+      -ms-transform: rotateX(180deg);
+          transform: rotateX(180deg);
+}
+.home-page h1 {
+  margin: 50px 0;
+  padding: 0 30px;
+}
+.home-page hr {
+  border-color: #d6d6d6;
+  margin: 50px 0;
+}
+.promo h2 {
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+@media (min-width: 768px) {
+  .promo h2 {
+    font-size: 50px;
+  }
+}
+@media (min-width: 992px) {
+  .promo h2 {
+    margin-top: 100px;
+  }
+}
+
+/* ==== register, login ==== */
+
+.login-form {
+  max-width: 350px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.login-heading {
+  margin-bottom: 10px;
+}
+.login-form .error-list {
+  padding-left: 5px;
+  list-style-type: none; 
+}
+.login-form .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+         box-sizing: border-box;
+  margin-bottom: -1px;
+  padding: 10px;
+  border-radius: 0;
+  font-size: 16px;
+}
+.login-form .form-control:focus {
+  z-index: 2;
+}
+#id_username {
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+}
+#id_password, #id_password2 {
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-bottom: 20px;
+}
+
+
+/* ==== playoff styles ==== */
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  background-color: #e4e4e4; 
+}
+.tab-content {
+  margin-bottom: 15px;
+}
+.tab-pane {
+  border-bottom: solid 1px #ddd;
+}
+
+.playoff-table-outter {
+  overflow-x: scroll;
+}
+.playoff-table {
+  width: auto;
+  margin: auto;
+  table-layout: fixed;
+}
+.playoff-table tr.round-names th {
+  text-align: center;
+}
+.playoff-table tr.actions td {
+  padding: 2px; text-align: center;
+}
+.playoff-table .expanded-column {
+  min-width: 220px;
+}
+.playoff-table tr td:nth-child(even) {
+  max-width: 220px;
+}
+.playoff-table tr td:nth-child(4n), .playoff-table tr td:nth-child(4n+3) { background-color: #e4e4e4; }
+.playoff-table tr th:nth-child(4n), .playoff-table tr th:nth-child(4n+3) { background-color: #e4e4e4; }
+td.spacing-1 > div { padding:  10px 0; }
+td.spacing-2 > div { padding:  70px 0; }
+td.spacing-3 > div { padding: 190px 0; }
+td.spacing-4 > div { padding: 430px 0; }
+td.spacing-5 > div { padding: 910px 0; }
+
+/* -- display styles -- */
+.match-detail .list-group {
+  margin: 0;
+}
+.match-detail li.list-group-item {
+  padding: 7px 15px;
+  font-size: 110%;
+}
+.match-detail .watch {
+  padding: 3px 0;
+  text-align: center;
+  font-style: italic;
+}
+.match-detail .show-one {
+  padding: 39px 0;
+  text-align: center;
+  font-style: italic;
+}
+.graand-final-wrapper {
+  width: 250px;
+  margin: auto;
+}
+.graand-final-wrapper > div {
+  padding: 50px 8px;
+}
+.created-by p {
+  margin-bottom: 15px;
+}
+
+/* -- edit styles -- */
+#playoff-form {
+  margin-top: 30px;
+}
+#playoff-form .checkbox-inline+.checkbox-inline {
+  margin-left: 25px;
+}
+#final .match-form {
+  width: 250px;
+  margin: auto;
+  padding: 50px 8px;
+}
+
+.match-form .input-group {
+  margin-bottom: -1px;
+}
+.match-form .side-a {
+  height: 36px;
+  border-bottom-left-radius: 0;
+}
+.match-form .btn-a {
+  height: 36px;
+  border-bottom-right-radius: 0;
+}
+.match-form .side-b {
+  height: 36px;
+  border-radius: 0;
+}
+.match-form .btn-b {
+  height: 36px;
+  border-radius: 0;
+}
+.match-form .form-control:focus {
+  z-index: 2;
+}

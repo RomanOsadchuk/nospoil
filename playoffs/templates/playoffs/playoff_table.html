@@ -1,0 +1,44 @@
+
+  <div class="playoff-table-outter wrapper flipped">
+    <table class="table playoff-table flipped">
+      <tbody>
+        <tr class="round-names">
+          {% for rnd in rounds %}
+            <th class="shrinked-column hidden">{{ rnd.short_name }}</th>
+            <th class="expanded-column">{{ rnd.long_name }}</th>
+          {% endfor %}
+        </tr>
+
+        <tr class="actions shrink-row">
+          {% for rnd in rounds %}
+            <td class="hidden"><a href="#" class="expand">&lt&gt</a></td>
+            <td><a href="#" class="shrink">&gt collapse &lt</a></td>
+          {% endfor %}
+        </tr>
+
+        {% if is_detail_view %}
+          <tr class="actions show-row">
+            {% for rnd in rounds %}
+              <td class="hidden">...</td>
+              <td><a href="#" class="show-all">show all</a></td>
+            {% endfor %}
+          </tr>
+        {% endif %}
+
+        <tr class="matches">
+          {% for rnd in rounds %}
+            <td class="hidden"></td>
+            <td data-round="{{ rnd.one_based_idx }}">
+              {% for match in rnd.matches %}
+                {% if is_detail_view %}
+                  {% include 'playoffs/match_detail.html' %}
+                {% else %}
+                  {% include 'playoffs/match_form.html' %}
+                {% endif %}
+              {% endfor %}
+            </td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  </div>

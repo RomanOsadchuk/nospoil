@@ -1,0 +1,12 @@
+<div class="match-detail">
+  <ul class="list-group">
+    <button type="button" class="list-group-item show-one">show</button>
+  </ul>
+
+  <ul class="list-group hidden">
+    <li class="list-group-item">{{ match.side_a|default:'- no info -' }}</li>
+    <li class="list-group-item">{{ match.side_b|default:'- no info -' }}</li>
+    <button type="button" class="list-group-item watch {% if match.youtube_id %}watch-yt{% else %}disabled{% endif %}"
+            data-youtube-src="{{ match.embed_yt_src }}">watch</button>
+  </ul>
+</div>

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | {{ block.super }}{% endblock %}
+
+
+{% block content %}
+  <h1>Palyoffs by me</h1>
+  {% if playoffs %}
+    <ul>
+      {% for playoff in playoffs %}
+        <li><a href="{% url 'playoffs:detail' playoff.id playoff.slug %}">{{ playoff.title }}</a>
+            - {{ playoff.sport }} (<a href="{% url 'playoffs:update' playoff.id %}">edit</a>)
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No playoffs so far.</p>
+  {% endif %}
+{% endblock %}

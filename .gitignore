@@ -1,0 +1,9 @@
+.venv
+staticfiles
+db.sqlite3
+
+nospoil/config.py
+*/migrations
+*.pyc
+*~
+

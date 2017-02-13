@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}All Playoffs | {{ block.super }}{% endblock %}
+
+
+{% block content %}
+  <h1>All Palyoffs</h1>
+  <ul>
+    {% for playoff in playoffs %}
+      <li><a href="{% url 'playoffs:detail' playoff.id playoff.slug %}">{{ playoff.title }}</a> - {{ playoff.sport }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

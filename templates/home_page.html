@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="home-page">
+    <h1>NoSpoil <small>Enjoy playoffs without spoilers</small></h1>
+    <hr class="promo-divider"/>
+    <div class="row promo">
+      <div class="col-md-5">
+        <img class="img-responsive center-block" src="{% static 'img/promo-grid.png' %}" alt="Grid that spoils">
+      </div>
+      <div class="col-md-7">
+        <h2>Next round participants are hidden</h2>
+        <p class="lead">Often when you want to watch some awesome quarter-final match, you see semi-final participants by accidant. (Like in the picture on the left) This info spoils you the winner. But here at NoSpoil all next rounds participants are hidden.</p>
+      </div>
+    </div>
+    <hr class="promo-divider"/>
+    <div class="row promo">
+      <div class="col-md-7">
+        <h2>No time bars</h2>
+        <p class="lead">Also when you see only 15 mins left until the end of the video you can guess the winner. You can deduce that your favourite player will not comeback to that game. That sucks. But here at NoSpoil time bars are off.</p>
+      </div>
+      <div class="col-md-5">
+        <img class="img-responsive center-block" src="{% static 'img/promo-time-bar.png' %}" alt="Time bar that spoils">
+      </div>
+    </div>
+    <hr class="promo-divider"/>
+    <h1 class="text-right"><small>Enjoy playoffs without spoilers</small> NoSpoil</h1>
+  </div>
+{% endblock %}
