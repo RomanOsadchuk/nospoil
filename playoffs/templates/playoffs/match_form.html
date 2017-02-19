@@ -14,6 +14,7 @@
     </span>
   </div>
   <input type="text" class="form-control input-sm youtube-id" value="{{ match.youtube_id }}"
-         placeholder="youtube id" name="youtube-id-{{ match.position }}">
+         placeholder="youtube id" name="youtube-id-{{ match.position }}"
+         data-toggle="popover" data-content="Put youtube video id here. Or the whole link (it will be cropped to id)">
   <input type="hidden" class="winner-a" name="winner-a-{{ match.position }}" value="{{ match.winner_a }}">
 </div>

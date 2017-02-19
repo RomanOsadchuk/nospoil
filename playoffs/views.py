@@ -34,7 +34,7 @@ class PlayoffDetailView(DetailView):
 class PlayoffCreateView(CreateView):
     model = Playoff
     form_class = PlayoffForm
-    initial = {'rounds': 3, 'double': True}
+    initial = {'rounds': 3, 'double': False, 'private': False}
     template_name = 'playoffs/playoff_form.html'
 
     def get_context_data(self, *args, **kwargs):

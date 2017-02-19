@@ -193,5 +193,6 @@ td.spacing-5 > div { padding: 910px 0; }
   border-radius: 0;
 }
 .match-form .form-control:focus {
-  z-index: 2;
+  position: relative;
+  z-index: 3;
 }

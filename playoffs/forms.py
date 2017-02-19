@@ -3,7 +3,8 @@ from nospoil.constants import MAX_PLAYOFF_ROUNDS
 from .models import Playoff
 
 
-ROUND_CHOICES = tuple((i, str(i)) for i in xrange(2, MAX_PLAYOFF_ROUNDS+1))
+ROUND_CHOICES = tuple((i, '{} rounds'.format(i))
+                      for i in xrange(2, MAX_PLAYOFF_ROUNDS+1))
 
 class PlayoffForm(forms.ModelForm):
     class Meta:

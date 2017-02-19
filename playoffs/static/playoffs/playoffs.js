@@ -129,6 +129,37 @@ playoff.gridEditing = {
   init: function() {
     this.initWinnerChanging();
     this.initSideChanging();
+    this.initPrivateSwitching();
+    this.initYoutubeIdChanging();
+    $('.youtube-id').popover({trigger: 'focus', placement: 'bottom'});
+    $('.btn').mouseup(function() { this.blur() });
+  },
+
+  initYoutubeIdChanging: function() {
+    var temp = '';
+    $('.youtube-id').change(function(){
+      temp = $(this).val();
+      if (temp.includes('?v=')) {
+        temp = temp.split('?v=')[1].split('&')[0];
+        $(this).val(temp);
+      } 
+    });
+  },
+
+  initPrivateSwitching: function() {
+    $('#id_private').prop('checked', true);
+    $('#private-off').click(function(){
+      $('#private-off').removeClass('btn-default').addClass('btn-success');
+      $('#private-on').removeClass('btn-success').addClass('btn-default');
+      $('#id_private').prop('checked', false);
+      $('#private-info').attr('placeholder', 'everyone can edit');
+    });
+    $('#private-on').click(function(){
+      $('#private-on').removeClass('btn-default').addClass('btn-success');
+      $('#private-off').removeClass('btn-success').addClass('btn-default');
+      $('#id_private').prop('checked', true);
+      $('#private-info').attr('placeholder', 'only you can edit');
+    });
   },
 
   initWinnerChanging: function() {
@@ -198,17 +229,22 @@ playoff.gridChanging = {
   },
 
   initDoubleChanging: function() {
-    $('#id_double').change(function(){
-      if (this.checked) {
-        $('a[href="#winners"]').text('Winners Grid')
-        $('a[href="#loosers"]').removeClass('hidden');
-        $('a[href="#final"]').removeClass('hidden');
-      }
-      else {
-        $('a[href="#winners"]').text('Grid').tab('show');
-        $('a[href="#loosers"]').addClass('hidden');
-        $('a[href="#final"]').addClass('hidden');
-      }
+    $('#id_double').prop('checked', true);
+    $('#double-off').click(function(){
+      $('#double-off').removeClass('btn-default').addClass('btn-success');
+      $('#double-on').removeClass('btn-success').addClass('btn-default');
+      $('#id_double').prop('checked', false);
+      $('a[href="#winners"]').text('Grid').tab('show');
+      $('a[href="#loosers"]').addClass('hidden');
+      $('a[href="#final"]').addClass('hidden');
+    });
+    $('#double-on').click(function(){
+      $('#double-on').removeClass('btn-default').addClass('btn-success');
+      $('#double-off').removeClass('btn-success').addClass('btn-default');
+      $('#id_double').prop('checked', true);
+      $('a[href="#winners"]').text('Winners Grid');
+      $('a[href="#loosers"]').removeClass('hidden');
+      $('a[href="#final"]').removeClass('hidden');
     });
   },
 
