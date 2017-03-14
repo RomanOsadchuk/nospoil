@@ -25,7 +25,8 @@ playoff.gridViewing = {
     $('#winners .show-all:eq(0)').parent().html('...');
     grView.showCol($('#winners'), 1);
     $('.show-one').click(function(){
-      $(this).closest('ul').addClass('hidden').next('ul').removeClass('hidden');
+      $(this).closest('ul').addClass('hidden')
+             .next('ul').removeClass('hidden');
     });
   
     $('.show-all').click(function(e) {

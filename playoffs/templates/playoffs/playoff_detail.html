@@ -3,8 +3,9 @@
 
 {% block title %}{{ playoff.title }} | {{ block.super }}{% endblock %}
 
-{% block js %}
-  <script type="text/javascript" src="{% static 'playoffs/playoffs.js' %}"></script>
+{% block extra_body %}
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script type="text/javascript" src="{% static 'playoffs/playoff-viewing.js' %}"></script>
 {% endblock %}
 
 

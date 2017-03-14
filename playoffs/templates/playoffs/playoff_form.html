@@ -3,8 +3,12 @@
 
 {% block title %}{% if is_create_view %}Create{% else %}Edit{% endif %} Playoff | {{ block.super }}{% endblock %}
 
-{% block js %}
-  <script type="text/javascript" src="{% static 'playoffs/playoffs.js' %}"></script>
+{% block extra_body %}
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script type="text/javascript" src="{% static 'playoffs/helpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'playoffs/switcher.js' %}"></script>
+  <script type="text/javascript" src="{% static 'playoffs/match-form.js' %}"></script>
+  <script type="text/javascript" src="{% static 'playoffs/playoff-editing.js' %}"></script>
 {% endblock %}
 
 
@@ -13,87 +17,78 @@
 
   <form id="playoff-form" class="form-horizontal" action="" method="post">
     {% csrf_token %}
-    <div class="form-group">
-      <label class="sr-only" for="{{ form.title.id_for_label }}">Playoff Title</label>
-      <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-        {{ form.title|add_class:"form-control input-lg"|set_placeholder:"Playoff Title" }}
+    <div id="vue-playoff">
+      <div class="form-group">
+        <label class="sr-only" for="{{ form.title.id_for_label }}">Playoff Title</label>
+        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+          {{ form.title|add_class:"form-control input-lg"|set_placeholder:"Playoff Title" }}
+        </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label class="sr-only" for="{{ form.sport.id_for_label }}">Kind of Sport</label>
-      <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-        {{ form.sport|add_class:"form-control"|set_placeholder:"Kind of Sport" }}
+      <div class="form-group">
+        <label class="sr-only" for="{{ form.sport.id_for_label }}">Kind of Sport</label>
+        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+          {{ form.sport|add_class:"form-control"|set_placeholder:"Kind of Sport" }}
+        </div>
       </div>
-    </div>
 
-    {% if is_create_view %}
-      {% if request.user.is_authenticated %}
+      {% if is_create_view and request.user.is_authenticated %}
         <div class="form-group">
-          <label class="sr-only" for="{{ form.private }}">Private or Public</label>
+          <label class="sr-only" for="{{ form.private.id_for_label }}">Private or Public</label>
           <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-            {{ form.private|add_class:"hidden" }}
-            <div class="input-group">
-              <span class="input-group-btn">
-                <button id="private-on" class="btn btn-success" type="button">Private</button>
-              </span>
-              <input id="private-info" type="text" class="form-control text-center" placeholder="only you can edit" readonly>
-              <span class="input-group-btn">
-                <button id="private-off" class="btn btn-default" type="button">Public</button>
-              </span>
-            </div>
+            <checkbox-switcher input-id="{{ form.private.id_for_label }}" input-name="{{ form.private.html_name }}"
+                               ticked-btn="Private" ticked-ph="only you can edit"
+                               unticked-btn="Public" unticked-ph="enyone can edit"></checkbox-switcher>
           </div>
         </div>
       {% endif %}
 
-      <div class="form-group">
-        <label class="sr-only" for="{{ form.rounds }}">Rounds Number</label>
-        <div class="col-sm-3 col-sm-offset-2 col-md-2 col-md-offset-3">
-          {{ form.rounds|add_class:"form-control" }}
-        </div>
-        <label class="sr-only" for="{{ form.double }}">Single or Double Elimination</label>
-        <div class="col-sm-5 col-md-4">
-          {{ form.double|add_class:"hidden" }}
-          <div class="input-group">
-            <span class="input-group-btn">
-              <button id="double-on" class="btn btn-success" type="button">Double</button>
-            </span>
-            <input type="text" class="form-control text-center" placeholder="elimination" readonly>
-            <span class="input-group-btn">
-              <button id="double-off" class="btn btn-default" type="button">Single</button>
-            </span>
+      {% if is_create_view %}
+        <div class="form-group">
+          <label class="sr-only" for="{{ form.rounds.id_for_label }}">Rounds Number</label>
+          <div class="col-sm-3 col-sm-offset-2 col-md-2 col-md-offset-3">
+            <select class="form-control" id="{{ form.rounds.id_for_label }}" name="rounds" required
+                    v-bind:value="playoff.rounds" v-on:change="updateRounds">
+              <option v-for="option in playoff.roundOptions" v-bind:value="option.value">
+                ${ option.text }
+              </option>
+            </select>
+          </div>
+
+          <label class="sr-only" for="{{ form.double.id_for_label }}">Single or Double Elimination</label>
+          <div class="col-sm-5 col-md-4">
+            <checkbox-switcher v-on:ticked="playoff.double = true" v-on:unticked="makeSingle"
+                               input-id="{{ form.double.id_for_label }}" input-name="{{ form.double.html_name }}"
+                               is-ticked="true" ticked-btn="Double" ticked-ph="elimination"
+                               unticked-btn="Single" unticked-ph="elimination"></checkbox-switcher>
           </div>
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     <div>
-      <ul class="nav nav-tabs" role="tablist">
+      <ul id="tablist" class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active">
           <a href="#winners" aria-controls="winners grid" role="tab" data-toggle="tab">
-            {% if is_create_view or playoff.double %}Winners {% endif %}Grid
+            <template v-if="playoff.double">Winners </template>Grid
           </a>
         </li>
-        {% if is_create_view or playoff.double %}
-          <li role="presentation">
-            <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
-          </li>
-          <li role="presentation">
-            <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
-          </li>
-        {% endif %}
+        <li v-if="playoff.double" role="presentation">
+          <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
+        </li>
+        <li v-if="playoff.double" role="presentation">
+          <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
+        </li>
       </ul>
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="winners">
           {% include 'playoffs/playoff_table.html' with rounds=grid.winners %}
         </div>
-        {% if is_create_view or playoff.double %}
-          <div role="tabpanel" class="tab-pane" id="loosers">
-            {% include 'playoffs/playoff_table.html' with rounds=grid.loosers %}
-          </div>
-          <div role="tabpanel" class="tab-pane" id="final">
-            {% include 'playoffs/match_form.html' with match=grid.grand_final %}
-          </div>
-        {% endif %}
+        <div role="tabpanel" class="tab-pane" id="loosers">
+          {% include 'playoffs/playoff_table.html' with rounds=grid.loosers %}
+        </div>
+        <div role="tabpanel" class="tab-pane" id="final">
+          {% include 'playoffs/match_form.html' with match=grid.grand_final %}
+        </div>
       </div>
     </div>
 
@@ -105,15 +100,5 @@
       </div>
     </div>
   </form>
-
-  {% if is_create_view %}
-    <!-- This tables are used to templrary store matches data when round numbers is changed. -->
-    <div id="hidden-winners" class="hidden">
-      <table><tbody><tr></tr><tr></tr><tr></tr><tr></tr></tbody></table>
-    </div>
-    <div id="hidden-loosers" class="hidden">
-      <table><tbody><tr></tr><tr></tr><tr></tr><tr></tr></tbody></table>
-    </div>
-  {% endif %}
 
 {% endblock %}
