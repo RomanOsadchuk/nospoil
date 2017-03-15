@@ -1,12 +1,22 @@
-from __future__ import unicode_literals
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
+from rest_framework import generics
+from rest_framework import permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from .forms import PlayoffForm
 from .models import Playoff, Match
+from .permissions import IsOwnerOrReadOnly
+from .serializers import PlayoffListSerializer, PlayoffDetailSerializer, UserSerializer
+import helpers
 import services
+
+
 
 
 class PlayoffIndexView(ListView):
@@ -76,3 +86,36 @@ class PlayoffUpdateView(UpdateView):
         services.update_matches(self.request.POST, self.object)
         services.update_last_edited(self.request.session, self.object)
         return HttpResponseRedirect(self.get_success_url())
+
+
+# ==== REST views ==== #
+
+
+@api_view(['GET'])
+def empty_grid(request, format=None):
+    return Response({'grid': helpers.get_empty_grid()})
+
+
+class PlayoffList(generics.ListCreateAPIView):
+    queryset = Playoff.objects.all()
+    serializer_class = PlayoffListSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class PlayoffDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Playoff.objects.all()
+    serializer_class = PlayoffDetailSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

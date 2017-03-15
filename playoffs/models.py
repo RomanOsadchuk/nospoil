@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
-from re import sub
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+
+import helpers
 
 
 class Playoff(models.Model):
@@ -12,7 +13,8 @@ class Playoff(models.Model):
     double = models.BooleanField(default=True)  # double or single elimination
     rounds = models.PositiveSmallIntegerField(default=5)
     private = models.BooleanField(default=False)  # only owner can edit
-    owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(User, null=True, related_name='playoffs',
+                              on_delete=models.SET_NULL)
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
     views = models.PositiveIntegerField(default=0)
@@ -21,20 +23,24 @@ class Playoff(models.Model):
         ordering = ['-last_modified']
 
     def save(self, *args, **kwargs):
-        title = self.title or '-----'
-        self.slug = sub(r'[^\w]+', '-', title)
+        self.slug = helpers.slugify(self.title)
         super(Playoff, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         kwargs = {'pk': self.pk, 'slug': self.slug}
         return reverse('playoffs:detail', kwargs=kwargs)
 
+    @property
+    def grid(self):
+        return helpers.get_playoff_grid(self)
+
     def __unicode__(self):
         return self.title
 
 
 class Match(models.Model):
-    playoff = models.ForeignKey(Playoff, on_delete=models.CASCADE)
+    playoff = models.ForeignKey(Playoff, related_name='matches',
+                                on_delete=models.CASCADE)
     position = models.CharField(max_length=8)  # todo - explain position
     side_a = models.CharField(max_length=32, blank=True)  # side: team/player
     side_b = models.CharField(max_length=32, blank=True)

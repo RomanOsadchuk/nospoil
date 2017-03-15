@@ -89,6 +89,31 @@ def _attach_data_to_matches(matches, post_data):
         match.youtube_id = post_data.get('youtube-id-' + pos, '')[:32]
 
 
+def create_matches_2(playoff, matches_data):
+    positions = get_match_positions(playoff.rounds, playoff.double)
+    matches = [Match(position=p, playoff=playoff) for p in positions]
+    _attach_data_to_matches_2(matches, matches_data)
+    Match.objects.bulk_create(matches)
+
+
+def update_matches_2(playoff, matches_data):
+    matches = list(playoff.matches.order_by('position'))
+    _attach_data_to_matches_2(matches, matches_data)
+    fields = ['side_a', 'side_b', 'winner_a', 'youtube_id']
+    bulk_update(matches, update_fields=fields)
+
+
+def _attach_data_to_matches_2(matches, matches_data):
+    if not isinstance(matches_data, dict):
+        return
+    for match in matches:
+        data_bit = matches_data.get(match.position, {})
+        match.side_a = data_bit.get('sideA', '')[:32]
+        match.side_b = data_bit.get('sideB', '')[:32]
+        match.winner_a = data_bit.get('winnerA')
+        match.youtube_id = data_bit.get('youtubeId-', '')[:32]
+
+
 LONG_NAMES = ['Final', 'SemiFinals', 'QuarterFinals']
 SHORT_NAMES = ['F', 'SF', 'QF']
 
