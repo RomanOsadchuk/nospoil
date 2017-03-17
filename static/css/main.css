@@ -123,8 +123,10 @@ body {
 .playoff-table tr td:nth-child(even) {
   max-width: 220px;
 }
-.playoff-table tr td:nth-child(4n), .playoff-table tr td:nth-child(4n+3) { background-color: #e4e4e4; }
-.playoff-table tr th:nth-child(4n), .playoff-table tr th:nth-child(4n+3) { background-color: #e4e4e4; }
+.playoff-table tr td:nth-child(odd),
+.playoff-table tr th:nth-child(odd) { 
+  background-color: #e4e4e4;
+}
 td.spacing-1 > div { padding:  10px 0; }
 td.spacing-2 > div { padding:  70px 0; }
 td.spacing-3 > div { padding: 190px 0; }

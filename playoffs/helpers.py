@@ -1,9 +1,9 @@
-from re import sub
+from re import sub as re_sub
 from nospoil.constants import MAX_PLAYOFF_ROUNDS
 
 
 def slugify(string):
-    return sub(r'[^\w]+', '-', string.lower())
+    return re_sub(r'[^\w]+', '-', string.lower())
 
 
 def get_match_positions(rounds, double=False):
@@ -34,7 +34,7 @@ def get_playoff_grid(playoff):
 def get_empty_grid():
     rounds, double = MAX_PLAYOFF_ROUNDS, True
     positions = get_match_positions(rounds, double)
-    empty = {'side_a': '', 'side_b': '', 'winner_a': '','youtube_id': ''}
+    empty = {'side_a': '', 'side_b': '', 'winner_a': None, 'youtube_id': ''}
     matches = [dict(position=p, **empty) for p in positions]
     return _get_grid(matches, rounds, double)
 

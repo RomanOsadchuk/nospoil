@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_create_view %}Create{% else %}Edit{% endif %} Playoff | {{ block.super }}{% endblock %}
+
+{% block extra_body %}
+  <script type="text/javascript">var isCreate = {% if is_create_view %}true{% else %}false{% endif %}</script>
+  <script type="text/javascript" src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script type="text/javascript" src="{% static 'playoffs/form.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+  <h1 class="text-center">{% if is_create_view %}Create{% else %}Edit{% endif %} Playoff</h1>
+
+  <form id="playoff-form" class="form-horizontal" @submit.prevent="postData">
+    <div class="form-group">
+      <label class="sr-only" for="title">Playoff Title</label>
+      <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+        <input v-model="playoff.title" id="title" type="text" maxlength="64" required
+               class="form-control input-lg" placeholder="Playoff Title">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="sr-only" for="sport">Kind of Sport</label>
+      <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+        <input v-model="playoff.sport" id="sport" type="text" maxlength="32"
+               class="form-control" placeholder="Kind of Sport">
+      </div>
+    </div>
+
+    <div v-if="playoff.rounds" class="form-group">
+      <label class="sr-only" for="rounds">Rounds Number</label>
+      <div class="col-sm-3 col-sm-offset-2 col-md-2 col-md-offset-3">
+        <select v-model="playoff.rounds" class="form-control" id="rounds">
+          <option v-for="option in roundOptions" :value="option.value">${ option.text }</option>
+        </select>
+      </div>
+      <label class="sr-only" for="double">Double Elimination</label>
+      <div class="col-sm-5 col-md-4">
+        <input v-model="playoff.double" id="double" type="checkbox" class="hidden">
+        <checkbox-switcher @tick="playoff.double=true" @untick="setSingleElimination"
+                           :isTicked="playoff.double" ticked-btn="Double" ticked-ph="elimination"
+                           unticked-btn="Single" unticked-ph="elimination"></checkbox-switcher>
+      </div>
+    </div>
+
+    <div>
+      <ul id="tablist" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+          <a href="#winners" aria-controls="winners grid" role="tab" data-toggle="tab">
+            <template v-if="showLoosersGrid">Winners </template>Grid
+          </a>
+        </li>
+        <template v-if="showLoosersGrid">
+          <li role="presentation">
+            <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
+          </li>
+          <li role="presentation">
+            <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
+          </li>
+        </template>
+      </ul>
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="winners">
+          <playoff-table is-winners="true" :grid="playoff.grid.winners" @update="updateWinners"
+            :rounds="{% if is_create_view %}playoff.rounds{% else %}playoff.grid.winners.length{% endif %}">
+          </playoff-table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="loosers" v-if="playoff.grid.loosers">
+          <playoff-table :grid="playoff.grid.loosers" @update="updateLoosers"
+            :rounds="{% if is_create_view %}playoff.rounds{% else %}playoff.grid.winners.length{% endif %}">    
+          </playoff-table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="final" v-if="playoff.grid.final">
+          <match-form v-bind:match="playoff.grid.final" @update="updateFinal"></match-form>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-5 col-sm-2">
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+          {% if is_create_view %}Save{% else %}Update{% endif %}
+        </button>
+      </div>
+    </div>
+
+  </form>
+{% endblock %}

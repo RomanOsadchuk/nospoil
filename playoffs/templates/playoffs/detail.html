@@ -5,28 +5,26 @@
 
 {% block extra_body %}
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
-  <script type="text/javascript" src="{% static 'playoffs/playoff-viewing.js' %}"></script>
+  <script type="text/javascript" src="{% static 'playoffs/detail.js' %}"></script>
 {% endblock %}
 
 
 {% block content %}
-  <h1 class="text-center">{{ playoff.title }}</h1>
+  <h1 class="text-center">${ playoff.title }</h1>
 
   <div>
     <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
         <a href="#winners" aria-controls="winners grid" role="tab" data-toggle="tab">
-          {% if playoff.double %}Winners {% endif %}Grid
+          <template v-if="playoff.grid.loosers">Winners </template>Grid
         </a>
       </li>
-      {% if playoff.double %}
-        <li role="presentation">
-          <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
-        </li>
-        <li role="presentation">
-          <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
-        </li>
-      {% endif %}
+      <li v-if="playoff.grid.loosers" role="presentation">
+        <a href="#loosers" aria-controls="Loosers grid" role="tab" data-toggle="tab">Loosers Grid</a>
+      </li>
+      <li v-if="playoff.grid.final" role="presentation">
+        <a href="#final" aria-controls="Grand Final" role="tab" data-toggle="tab">Grand Final</a>
+      </li>
       <li role="presentation">
         <a href="#video" aria-controls="video player" role="tab" data-toggle="tab">Video Player</a>
       </li>
@@ -34,18 +32,16 @@
 
     <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="winners">
-        {% include 'playoffs/playoff_table.html' with rounds=grid.winners %}
+        <playoff-table is-winners="true" :grid="playoff.grid.winners"></playoff-table>
       </div>
-      {% if playoff.double %}
-        <div role="tabpanel" class="tab-pane" id="loosers">
-          {% include 'playoffs/playoff_table.html' with rounds=grid.loosers %}
+      <div v-if="playoff.grid.loosers" role="tabpanel" class="tab-pane" id="loosers">
+        <playoff-table :grid="playoff.grid.loosers"></playoff-table>
+      </div>
+      <div v-if="playoff.grid.final" role="tabpanel" class="tab-pane" id="final">
+        <div class="graand-final-wrapper">
+          final
         </div>
-        <div role="tabpanel" class="tab-pane" id="final">
-          <div class="graand-final-wrapper">
-            {% include 'playoffs/match_detail.html' with match=grid.grand_final %}
-          </div>
-        </div>
-      {% endif %}
+      </div>
 
       <div role="tabpanel" class="tab-pane" id="video">
         <h3 class="text-center">Select match to watch from grid</h3>
@@ -66,7 +62,7 @@
       </p>
     </div>
     <div class="col-xs-6 text-right">
-      {% if editable %}<a href="{% url 'playoffs:update' playoff.pk %}">Edit this playoff</a>{% endif %}
+      <p>Edit this playoff</p>
     </div>
   </div>
 {% endblock %}

@@ -1,17 +1,7 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Match, Playoff
-
 from nospoil.constants import MAX_PLAYOFF_ROUNDS
-import services
-
-
-class UserSerializer(serializers.ModelSerializer):
-    playoffs = serializers.PrimaryKeyRelatedField(many=True, queryset=Playoff.objects.all())
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'playoffs')
+from .models import Playoff
+from .services import create_matches, update_matches
 
 
 class PlayoffListSerializer(serializers.ModelSerializer):
@@ -26,7 +16,7 @@ class PlayoffListSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         playoff = Playoff.objects.create(**validated_data)
         matches = self.initial_data.get('matches', {})
-        services.create_matches_2(playoff, matches)
+        create_matches(playoff, matches)
         return playoff
 
 
@@ -44,5 +34,5 @@ class PlayoffDetailSerializer(serializers.ModelSerializer):
         instance.private = validated_data.get('private', instance.private)
         instance.save()
         matches = self.initial_data.get('matches', {})
-        services.update_matches_2(instance, matches)
+        update_matches(instance, matches)
         return instance
