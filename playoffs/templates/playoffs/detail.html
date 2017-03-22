@@ -32,23 +32,23 @@
 
     <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="winners">
-        <playoff-table is-winners="true" :grid="playoff.grid.winners"></playoff-table>
+        <playoff-table is-winners="true" :grid="playoff.grid.winners" @watch="watch"></playoff-table>
       </div>
       <div v-if="playoff.grid.loosers" role="tabpanel" class="tab-pane" id="loosers">
-        <playoff-table :grid="playoff.grid.loosers"></playoff-table>
+        <playoff-table :grid="playoff.grid.loosers" @watch="watch"></playoff-table>
       </div>
       <div v-if="playoff.grid.final" role="tabpanel" class="tab-pane" id="final">
         <div class="graand-final-wrapper">
-          final
+          <match-detail :match="playoff.grid.final" @watch="watch"></match-detail>
         </div>
       </div>
 
       <div role="tabpanel" class="tab-pane" id="video">
-        <h3 class="text-center">Select match to watch from grid</h3>
+        <h3 class="text-center">${ watchTitle }</h3>
         <p class="text-center">NOTE: Controls are turned off because I don't want you to know when the video ends.<br/>
           Use hotkeys for navigation: left/right arrows, J, K, L, and other</p>
         <div class="embed-responsive embed-responsive-16by9">
-          <iframe id="ytplayer" class="embed-responsive-item"></iframe>
+          <iframe v-if="watchSrc" class="embed-responsive-item" :src="watchSrc"></iframe>
         </div>
       </div>
     </div>
@@ -62,7 +62,9 @@
       </p>
     </div>
     <div class="col-xs-6 text-right">
-      <p>Edit this playoff</p>
+      {% if is_editable %}
+        <p><a href="{% url 'playoffs:update' playoff.pk %}">Edit this playoff</a></p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

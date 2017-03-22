@@ -8,7 +8,10 @@ Vue.component('match-detail', {
         <template v-if="spoiled || spoiledCol > index">
           <li class="list-group-item">{{ match.side_a || '(tbd)' }}</li>
           <li class="list-group-item">{{ match.side_b || '(tbd)' }}</li>
-          <button type="button" class="list-group-item watch">watch</button>
+          <button type="button" class="list-group-item watch" @click="watchMatch"
+                  :class="match.youtube_id ? '' : 'disabled'">
+            {{ match.youtube_id ? 'watch' : '(no video)' }}
+          </button>
         </template>
         <button v-else type="button" class="list-group-item show-one"
                 @click="spoiled = true">show</button>
@@ -17,6 +20,12 @@ Vue.component('match-detail', {
   `,
   data: function() {
     return {spoiled: false}
+  },
+  methods: {
+    watchMatch() {
+      if (this.match.youtube_id)
+        this.$emit('watch', this.match)
+    }
   }
 })
 
@@ -44,7 +53,8 @@ Vue.component('playoff-table', {
           </tr>
           <tr v-if="spoiled < grid.length" class="actions">
             <template v-for="(rnd, index) in grid">
-              <td v-if="spoiled <= index">
+              <td v-if="shrinked > index">..</td>
+              <td v-else-if="spoiled <= index">
                 <a href="#" @click.prevent="spoiled = index + 1">show all</a>
               </td>
               <td v-else>..</td>
@@ -53,8 +63,8 @@ Vue.component('playoff-table', {
           <tr class="matches">
             <template v-for="(rnd, index) in grid">
               <td v-if="shrinked <= index" :class="spacing(index)">
-                <match-detail v-for="match in rnd" :match="match" :key="match.plsition"
-                              :spoiledCol="spoiled" :index="index"></match-detail>
+                <match-detail v-for="match in rnd" :match="match" :key="match.position"
+                              :spoiledCol="spoiled" :index="index" @watch="watch"></match-detail>
               </td>
               <td v-else></td>
             </template>
@@ -82,10 +92,13 @@ Vue.component('playoff-table', {
       var idxFromEnd = this.grid.length - 1 - index
       return this.isWinners ? idxFromEnd < 3 : idxFromEnd < 4
     },
-    spacing: function(index){
+    spacing: function(index) {
       if (this.isWinners)
         return 'spacing-' + (index - this.shrinked + 1)
       return 'spacing-' + (parseInt(index/2) - parseInt(this.shrinked/2) + 1)
+    },
+    watch: function(match) {
+      this.$emit('watch', match)
     }
   }
 })
@@ -95,15 +108,21 @@ var playoffDetail = new Vue({
   el: '#content',
   delimiters: ['${','}'],
   data: {
-    playoff: {
-      title: 'Loading ... ',
-      grid: {'winners': []}
-    }
+    playoff: {title: 'Loading ... ', grid: {'winners': []}},
+    watchTitle: 'Select match to watch from grid',
+    watchSrc: ''
   },
   created: function () {
-    var vm = this,
-        pk = document.location.pathname.split('/')[3],
-        url = document.location.origin + '/playoffs/api/playoff/' + pk + '/'
-    $.get(url, function(data) { vm.playoff = data })
+    var vm = this, pk = document.location.pathname.split('/')[2],
+        apiUrl = document.location.origin + '/api/playoff/' + pk + '/'
+    $.get(apiUrl, function(data) { vm.playoff = data })
+  },
+  methods: {
+    watch: function(match) {
+      var ytDom = 'https://www.youtube.com/embed/'
+      this.watchTitle = match.side_a + ' - ' + match.side_b
+      this.watchSrc = ytDom + match.youtube_id + '?controls=0'
+      $('a[href="#video"]').tab('show')
+    }
   }
 })

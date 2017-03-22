@@ -46,7 +46,7 @@ Vue.component('match-form', {
         </span>
       </div>
       <input type="text" class="form-control input-sm youtube-id" placeholder="youtube url or id"
-             :value="match.youtube_id" @input="setYoutubeId">
+             :value="match.youtube_id" @change="setYoutubeId">
     </div>
   `,
   methods: {
@@ -62,7 +62,7 @@ Vue.component('match-form', {
       var value = event.target.value
       if (value.includes('?v='))
         value = value.split('?v=')[1].split('&')[0]
-      // todo - update once signal
+      // todo - update with no recursion
       this.$emit('update', this.match.position, 'youtube_id', value)
     }
   }
@@ -146,7 +146,6 @@ var playoffForm = new Vue({
   el: '#playoff-form',
   delimiters: ['${','}'],
   data: {
-    apiUrl: document.location.origin + '/playoffs/api/playoff/',
     playoff: {
       title: '', sport: '', rounds: 5, double: true,
       private: false, grid: {winners: [], loosers: []}
@@ -159,20 +158,26 @@ var playoffForm = new Vue({
     ]
   },
   computed: {
+    isCreateForm: function() { 
+      return document.location.pathname.includes('new')
+    },
+    apiUrl: function() {
+      return document.location.origin + '/api/'
+    },
     showLoosersGrid: function() {
-      return isCreate ? this.playoff.double : this.playoff.grid.loosers
+      return this.isCreateForm ? this.playoff.double : this.playoff.grid.loosers
     }
   },
   created: function () {
-    var vm = this, origin = document.location.origin,
-        pk = document.location.pathname.split('/')[3]
-    if (isCreate)
-      $.get(origin+'/playoffs/api/empty-grid/',
+    var vm = this, pk = document.location.pathname.split('/')[3]
+    if (this.isCreateForm)
+      $.get(vm.apiUrl + 'empty-grid/',
             function(data) { vm.playoff.grid = data })
     else
-      $.get(origin+'/playoffs/api/playoff/'+pk+'/',
+      $.get(vm.apiUrl + 'playoff/' + pk + '/',
             function(data) { vm.playoff = data })
   },
+
   methods: {
     setSingleElimination: function() {
       this.playoff.double = false
@@ -223,7 +228,7 @@ var playoffForm = new Vue({
       var data = {title: this.playoff.title,
                   sport: this.playoff.sport,
                   matches: {}}
-      if (isCreate) {
+      if (this.isCreateForm) {
         data.rounds = this.playoff.rounds
         data.double = this.playoff.double
       }
@@ -240,19 +245,22 @@ var playoffForm = new Vue({
     },
     postData: function() {
       var vm = this, data = this.collectData(),
-          csrf = document.cookie.split('csrftoken=')[1].split(' ')[0],
-          successUrl = document.location.origin + '/playoffs/detail/'
-      $.ajax({
-        type: isCreate ? 'POST' : 'PUT',
-        url: vm.apiUrl + (isCreate ? '' : vm.playoff.id + '/'),
-        headers: {'X-CSRFTOKEN': csrf},
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify(data),
-        success: function(resp) {
-          document.location.href = successUrl + resp.id + '/'
+          successUrl = document.location.origin + '/playoffs/',
+          ajax_data = {
+            type: this.isCreateForm ? 'POST' : 'PUT',
+            url: this.apiUrl+'playoff/'+ (this.isCreateForm ? '' : this.playoff.id+'/'),
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function(resp) {
+              document.location.href = successUrl + resp.id + '/'
+            }   
+          }
+      if (document.cookie.includes('csrftoken='))
+        ajax_data.headers = {
+          'X-CSRFTOKEN': document.cookie.split('csrftoken=')[1].split(' ')[0]
         }
-      })
+      $.ajax(ajax_data)
     }
   }
 })

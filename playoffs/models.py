@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-import helpers
+from .helpers import get_grid, slugify
 
 
 class Playoff(models.Model):
@@ -23,7 +23,9 @@ class Playoff(models.Model):
         ordering = ['-last_modified']
 
     def save(self, *args, **kwargs):
-        self.slug = helpers.slugify(self.title)
+        self.slug = slugify(self.title)
+        if not self.owner:
+            self.private = False
         super(Playoff, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -32,7 +34,10 @@ class Playoff(models.Model):
 
     @property
     def grid(self):
-        return helpers.get_playoff_grid(self)
+        # grid explained in helpers.get_grid function
+        values = ('position', 'side_a', 'side_b', 'winner_a', 'youtube_id')
+        matches = list(self.matches.order_by('position').values(*values))
+        return get_grid(matches, self.rounds, self.double)
 
     def __unicode__(self):
         return self.title
@@ -41,7 +46,8 @@ class Playoff(models.Model):
 class Match(models.Model):
     playoff = models.ForeignKey(Playoff, related_name='matches',
                                 on_delete=models.CASCADE)
-    position = models.CharField(max_length=8)  # todo - explain position
+    # position explained in helpers.get_match_positions
+    position = models.CharField(max_length=8)
     side_a = models.CharField(max_length=32, blank=True)  # side: team/player
     side_b = models.CharField(max_length=32, blank=True)
     winner_a = models.NullBooleanField()
@@ -49,14 +55,6 @@ class Match(models.Model):
 
     class Meta:
         unique_together = (('playoff', 'position'),)
-
-    @property
-    def embed_yt_src(self):
-        if not self.youtube_id:
-            return ''
-        sep = '&' if '?' in self.youtube_id else '?'
-        dom = 'https://www.youtube.com/embed/'
-        return dom + self.youtube_id + sep + 'controls=0'
 
     def __unicode__(self):
         return '{}: {} - {}'.format(self.position, self.side_a, self.side_b)

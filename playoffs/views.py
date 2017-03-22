@@ -1,18 +1,18 @@
-from django.template.response import TemplateResponse
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 
 from rest_framework import generics
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-import services
-from .helpers import get_empty_grid
 from .models import Playoff
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrPublicOrReadOnly
 from .serializers import PlayoffListSerializer, PlayoffDetailSerializer
+from .services import get_empty_grid, inc_playoff_views, update_last_viewed
 
 
+# ==== Template Views ==== #
 
 def index(request):
     context = {'playoffs': Playoff.objects.all()}
@@ -26,37 +26,40 @@ def create(request):
 
 def update(request, pk):
     playoff = get_object_or_404(Playoff, pk=pk)
-    # not allowed
+    if playoff.private and request.user != playoff.owner:
+        raise PermissionDenied('You can not edit this playoff')
     context = {'is_create_view': False, 'playoff': playoff}
     return TemplateResponse(request, 'playoffs/form.html', context)
 
 
 def detail(request, pk, slug=None):
     playoff = get_object_or_404(Playoff, pk=pk)
-    services.inc_playoff_views(playoff)
-    context = {'playoff': playoff}
+    inc_playoff_views(playoff)
+    update_last_viewed(request.session, playoff)
+    is_editable = playoff.owner == request.user or not playoff.private
+    context = {'playoff': playoff, 'is_editable': is_editable}
     return TemplateResponse(request, 'playoffs/detail.html', context)
 
 
-# ==== REST views ==== #
+# ==== Api Views ==== #
 
 @api_view(['GET'])
 def empty_grid(request, format=None):
     return Response(get_empty_grid())
 
 
-# update last viewed, last edited
-
 class PlayoffList(generics.ListCreateAPIView):
     queryset = Playoff.objects.all()
     serializer_class = PlayoffListSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        if self.request.user.is_authenticated:
+            serializer.save(owner=self.request.user)
+        else:
+            serializer.save()
 
 
-class PlayoffDetail(generics.RetrieveUpdateDestroyAPIView):
+class PlayoffDetail(generics.RetrieveUpdateAPIView):
     queryset = Playoff.objects.all()
     serializer_class = PlayoffDetailSerializer
-    # permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+    permission_classes = (IsOwnerOrPublicOrReadOnly, )

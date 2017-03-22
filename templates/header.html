@@ -12,19 +12,6 @@
 
     <div id="navbar" class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        <li><a href="{% url 'playoffs:create' %}">Add Playoff</a></li>
-        {% if 'last_edited' in request.session %}
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-              Last Edited <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              {% for playoff in request.session.last_edited %}
-                <li><a href="{% url 'playoffs:detail' playoff.pk playoff.slug %}">{{ playoff.title }}</a></li>
-              {% endfor %}
-            </ul>
-          </li>
-        {% endif %}
         {% if 'last_viewed' in request.session %}
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -36,9 +23,9 @@
               {% endfor %}
             </ul>
           </li>
-        {% else %}
-          <li><a href="{% url 'playoffs:index' %}">All Playoffs</a></li>
         {% endif %}
+        <li><a href="{% url 'playoffs:index' %}">All Playoffs</a></li>
+        <li><a href="{% url 'playoffs:create' %}">Add Playoff</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right">

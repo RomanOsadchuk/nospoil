@@ -4,7 +4,6 @@
 {% block title %}{% if is_create_view %}Create{% else %}Edit{% endif %} Playoff | {{ block.super }}{% endblock %}
 
 {% block extra_body %}
-  <script type="text/javascript">var isCreate = {% if is_create_view %}true{% else %}false{% endif %}</script>
   <script type="text/javascript" src="https://unpkg.com/vue/dist/vue.js"></script>
   <script type="text/javascript" src="{% static 'playoffs/form.js' %}"></script>
 {% endblock %}
@@ -41,7 +40,7 @@
       <div class="col-sm-5 col-md-4">
         <input v-model="playoff.double" id="double" type="checkbox" class="hidden">
         <checkbox-switcher @tick="playoff.double=true" @untick="setSingleElimination"
-                           :isTicked="playoff.double" ticked-btn="Double" ticked-ph="elimination"
+                           :is-ticked="playoff.double" ticked-btn="Double" ticked-ph="elimination"
                            unticked-btn="Single" unticked-ph="elimination"></checkbox-switcher>
       </div>
     </div>
