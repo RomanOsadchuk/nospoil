@@ -29,6 +29,19 @@
       </div>
     </div>
 
+    {% if is_create_view or is_owner %}
+      <div class="form-group">
+        <label class="sr-only" for="private">Private</label>
+        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+          <input v-model="playoff.private" id="private" type="checkbox" class="hidden">
+          <checkbox-switcher @tick="playoff.private=true" @untick="playoff.private=false"
+                             ticked-btn="Private" ticked-ph="only you can edit"
+                             unticked-btn="Public" unticked-ph="enyone can edit"
+                             :is-ticked="playoff.private"></checkbox-switcher>
+        </div>
+      </div>
+    {% endif %}
+
     <div v-if="playoff.rounds" class="form-group">
       <label class="sr-only" for="rounds">Rounds Number</label>
       <div class="col-sm-3 col-sm-offset-2 col-md-2 col-md-offset-3">

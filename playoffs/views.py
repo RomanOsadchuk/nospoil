@@ -28,7 +28,7 @@ def update(request, pk):
     playoff = get_object_or_404(Playoff, pk=pk)
     if playoff.private and request.user != playoff.owner:
         raise PermissionDenied('You can not edit this playoff')
-    context = {'is_create_view': False, 'playoff': playoff}
+    context = {'playoff': playoff, 'is_owner': request.user==playoff.owner}
     return TemplateResponse(request, 'playoffs/form.html', context)
 
 
@@ -63,3 +63,10 @@ class PlayoffDetail(generics.RetrieveUpdateAPIView):
     queryset = Playoff.objects.all()
     serializer_class = PlayoffDetailSerializer
     permission_classes = (IsOwnerOrPublicOrReadOnly, )
+
+    def perform_update(self, serializer):
+        if self.request.user != serializer.instance.owner:
+            # only owner can make playoff private
+            serializer.save(private=False)
+        else:
+            serializer.save()
